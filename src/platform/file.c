@@ -133,8 +133,8 @@ void paths_init()
 		data_dirs = 3;
 		data_dir = calloc(3, sizeof(char*));
 		data_dir[0] = data_local_dir;
-		data_dir[1] = strdup("/usr/local/share" shortname);
-		data_dir[2] = strdup("/usr/share" shortname);
+		data_dir[1] = strdup("/usr/local/share/" shortname);
+		data_dir[2] = strdup("/usr/share/" shortname);
 		if ((shortname_len + 16) > data_maxpath)
 			data_maxpath = shortname_len + 16;
 	}
