@@ -234,9 +234,9 @@ bool script_init()
 	lua_rawset(script_state, -3);
 	lua_setglobal(script_state, "Object");
 	
-	extern char _binary_obj_engine_init_luac_start;
-	extern char _binary_obj_engine_init_luac_end;
-	if (!script_runbuf(&_binary_obj_engine_init_luac_start, &_binary_obj_engine_init_luac_end - &_binary_obj_engine_init_luac_start))
+	extern char init_lua[];
+	extern unsigned long init_lua_size;
+	if (!script_runbuf(init_lua, init_lua_size))
 	{
 		lua_close(script_state);
 		return false;

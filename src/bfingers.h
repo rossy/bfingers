@@ -14,6 +14,14 @@
 #define shortname "bfingers"
 #define shortname_len (8)
 
+#ifndef COMPILER
+#define COMPILER "unknown"
+#endif
+
+#ifndef UNAME
+#define UNAME "unknown"
+#endif
+
 extern gar_list* data_root;
 
 extern unsigned int bf_width;

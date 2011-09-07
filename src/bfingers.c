@@ -168,7 +168,7 @@ int main(int argc, char** argv)
 	tracef("        data root: %s", dataname);
 	
 	SDL_VERSION(&sdl_compiled);
-	tracef(" --- SDL ---\n compiled version: %d.%d.%d\n   linked version: %d.%d.%d\n         compiler: " SDL_COMPILER, sdl_compiled.major, sdl_compiled.minor, sdl_compiled.patch, sdl_linked->major, sdl_linked->minor, sdl_linked->patch);
+	tracef(" --- SDL ---\n compiled version: %d.%d.%d\n   linked version: %d.%d.%d", sdl_compiled.major, sdl_compiled.minor, sdl_compiled.patch, sdl_linked->major, sdl_linked->minor, sdl_linked->patch);
 	
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 		die("SDL_Init failed :(", 1);
