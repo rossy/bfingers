@@ -1,8 +1,14 @@
 CC=gcc
 CFLAGS=-Wall -O0 -flto=jobserver
 LDFLAGS=-Ofast -s -flto=jobserver -fuse-linker-plugin -fwhole-program
-LIBS=-llua -llzma -lSDL -lSDLmain -lz -lpng -lrt -lGL -pthread
+LIBS=-llua -llzma -lSDL -lSDLmain -lz -lpng -lrt -lGL
 BIN2C=./bin2c
+
+ifeq ($(MSYSTEM),MINGW32)
+LDFLAGS+=-mwindows
+else
+LIBS+=-pthread
+endif
 
 SRCDIR=src/
 BINDIR=bin/
@@ -31,7 +37,12 @@ INIFILE_CFLAGS=$(CFLAGS)
 
 all: $(BINDIR)$(EXECUTABLE)
 
-.PHONY: all clean gar inifile libchash platform lua
+.PHONY: all static clean gar inifile libchash platform lua
+
+static: PATH:=libs/bin:$(PATH)
+static: CFLAGS+=-Ilibs/include
+static: LDFLAGS+=-Llibs/lib
+static: all
 
 -include $(OBJECTS:.o=.d)
 

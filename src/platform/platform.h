@@ -20,6 +20,10 @@ typedef unsigned int uint;
 #endif
 
 #if defined(WIN32)
+	#define mem_read 0x01
+	#define mem_write 0x02
+	#define mem_exec 0x04
+	#define mem_none 0x00
 	typedef unsigned int thread_return;
 #else
 	#include <unistd.h>
@@ -37,6 +41,30 @@ int asprintf(char**, const char*, ...);
 int vasprintf(char **strp, const char *fmt, va_list ap);
 
 #if defined(WIN32)
+	#if defined(PLATFORM_DEFINE_TIME)
+		uint64_t time_timespersec;
+		uint64_t time_start;
+		uint64_t time_time;
+		uint64_t time_lasttime;
+		uint64_t time_lastframetime;
+		uint64_t time_res;
+		clock_t time_cputime;
+		clock_t time_lastcputime;
+	#else
+		extern uint64_t time_timespersec;
+		extern uint64_t time_start;
+		extern uint64_t time_time;
+		extern uint64_t time_res;
+		extern uint64_t time_lastframetime;
+		extern clock_t time_lastcputime;
+	#endif
+	
+	static inline void time_init()
+	{
+		LARGE_INTEGER tps;
+		QueryPerformanceFrequency(&tps);
+		time_timespersec = tps.QuadPart;
+	}
 	
 #else
 	#define time_timespersec (UINT64_C(1000000000))

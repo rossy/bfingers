@@ -1,10 +1,10 @@
+#include <GL/gl.h>
 #include <png.h>
 #define PLATFORM_DEFINE_TIME
 #include <platform.h>
 #include <stdio.h>
 #include <time.h>
 #include <SDL/SDL.h>
-#include <GL/gl.h>
 #include <gar.h>
 #include "bfingers.h"
 #include "log.h"
