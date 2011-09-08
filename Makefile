@@ -1,7 +1,8 @@
 CC=gcc
-CFLAGS=-Wall -O0 -flto=jobserver
-LDFLAGS=-Ofast -s -flto=jobserver -fuse-linker-plugin -fwhole-program
+CFLAGS=-Wall -O0 -flto=jobserver -march=i686 -mtune=atom
+LDFLAGS=-Ofast -s -flto=jobserver -march=i686 -mtune=atom -fuse-linker-plugin -fwhole-program
 LIBS=-llua -llzma -lSDL -lSDLmain -lz -lpng -lrt -lGL
+DEFS=-DCOMPILER="\"`$(CC) --version|head -n1`\"" -DUNAME="\"`uname -snrmpo`\""
 BIN2C=./bin2c
 
 ifeq ($(MSYSTEM),MINGW32)
@@ -37,7 +38,7 @@ INIFILE_CFLAGS=$(CFLAGS)
 
 all: $(BINDIR)$(EXECUTABLE)
 
-.PHONY: all static clean gar inifile libchash platform lua
+.PHONY: all clean static cloc gar inifile libchash platform lua
 
 static: PATH:=libs/bin:$(PATH)
 static: CFLAGS+=-Ilibs/include
@@ -52,8 +53,8 @@ $(BINDIR):
 $(OBJDIR):
 	mkdir -p $(OBJDIR)
 
-$(BINDIR)$(EXECUTABLE): $(OBJDIR)init_lua.o $(OBJECTS) $(LIBCHASH_OBJECTS) $(GAR_OBJECTS) $(PLATFORM_OBJECTS) $(INIFILE_OBJECTS) | $(BINDIR)
-	+$(CC) $(LDFLAGS) $(LIBS) $(OBJDIR)init_lua.o $(OBJECTS) $(LIBCHASH_OBJECTS) $(GAR_OBJECTS) $(PLATFORM_OBJECTS) $(INIFILE_OBJECTS) -o $@
+$(BINDIR)$(EXECUTABLE): $(OBJDIR)engine_init_lua.o $(OBJECTS) $(LIBCHASH_OBJECTS) $(GAR_OBJECTS) $(PLATFORM_OBJECTS) $(INIFILE_OBJECTS) | $(BINDIR)
+	+$(CC) $(LDFLAGS) $(LIBS) $(OBJDIR)engine_init_lua.o $(OBJECTS) $(LIBCHASH_OBJECTS) $(GAR_OBJECTS) $(PLATFORM_OBJECTS) $(INIFILE_OBJECTS) -o $@
 
 $(OBJDIR)%.o: $(SRCDIR)%.c | $(OBJDIR)
 	+$(CC) $(DEFS) $(CPPFLAGS) -MMD -MP -MT $@ -MF $(basename $@).d $(BFINGERS_CFLAGS) -c $< -o $@
@@ -78,12 +79,19 @@ inifile: $(INIFILE_OBJECTS)
 $(OBJDIR)%.o: $(SRCDIR)inifile/%.c | $(OBJDIR)
 	+$(CC) $(DEFS) $(CPPFLAGS) -MMD -MP -MT $@ -MF $(basename $@).d $(INIFILE_CFLAGS) -c $< -o $@
 
-lua: $(OBJDIR)init_lua.o
+lua: $(OBJDIR)engine_init_lua.o
 
-$(OBJDIR)init_lua.o: $(SRCDIR)lua/init.lua | $(OBJDIR)
+$(OBJDIR)engine_init_lua.o: $(SRCDIR)engine_init.lua | $(OBJDIR)
 	$(BIN2C) $< init_lua | $(CC) -w -x c -c - -o $@
 
 clean:
 	-rm -f $(OBJDIR)*.o $(OBJDIR)*.d
 	-rmdir -p $(OBJDIR) 2> /dev/null > /dev/null
 	-rmdir -p $(BINDIR) 2> /dev/null > /dev/null
+
+rebuild:
+	$(MAKE) clean
+	$(MAKE)
+
+cloc:
+	 cloc src --exclude-dir=libchash
