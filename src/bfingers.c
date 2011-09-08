@@ -186,7 +186,7 @@ int main(int argc, char** argv)
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, display_doublebuffer ? 1 : 0);
 	SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, display_waitforvblank ? 1 : 0);
 	
-	if (!(screen = SDL_SetVideoMode(bf_width = display_width, bf_height = display_height, display_depth, SDL_OPENGL | SDL_RESIZABLE | (display_fullscreen ? SDL_FULLSCREEN : 0))))
+	if (!(screen = SDL_SetVideoMode(bf_width = display_width, bf_height = display_height, display_depth, SDL_OPENGL | SDL_RESIZABLE | (display_border ? 0 : SDL_NOFRAME) | (display_fullscreen ? SDL_FULLSCREEN : 0))))
 		die("Could not get display surface :(", 1);
 	atexit(bfexit);
 	

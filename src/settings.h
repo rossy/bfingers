@@ -17,6 +17,7 @@ extern int32_t display_width         ;
 extern int32_t display_height        ;
 extern int32_t display_depth         ;
 extern bool    display_fullscreen    ;
+extern bool    display_border        ;
 extern bool    display_doublebuffer  ;
 extern bool    display_waitforvblank ;
 extern bool    display_printfps      ;

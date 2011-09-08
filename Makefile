@@ -36,9 +36,12 @@ INIFILE_SOURCES=$(addprefix $(SRCDIR), inifile/inifile_reader.c)
 INIFILE_OBJECTS=$(addprefix $(OBJDIR), $(notdir $(INIFILE_SOURCES:.c=.o)))
 INIFILE_CFLAGS=$(CFLAGS)
 
+#COLOR_RED=\e[1;31m
+#COLOR_CLEAR=\e[0m
+
 all: $(BINDIR)$(EXECUTABLE)
 
-.PHONY: all clean static cloc gar inifile libchash platform lua
+.PHONY: all clean distclean dist static cloc gar inifile libchash platform lua
 
 static: PATH:=libs/bin:$(PATH)
 static: CFLAGS+=-Ilibs/include
@@ -54,49 +57,54 @@ $(OBJDIR):
 	@mkdir -p $(OBJDIR)
 
 $(BINDIR)$(EXECUTABLE): $(OBJDIR)data.c $(OBJECTS) $(LIBCHASH_OBJECTS) $(GAR_OBJECTS) $(PLATFORM_OBJECTS) $(INIFILE_OBJECTS) | $(BINDIR)
-	@echo -e "CCLD $@\e[1;31m"
+	@echo -e "CCLD $@$(COLOR_RED)"
 	+@$(CC) $(LDFLAGS) $(LIBS) $(OBJDIR)data.c $(OBJECTS) $(LIBCHASH_OBJECTS) $(GAR_OBJECTS) $(PLATFORM_OBJECTS) $(INIFILE_OBJECTS) -o $@
-	@echo -ne "\e[0m"
+	@echo -ne "$(COLOR_CLEAR)"
 
 $(OBJDIR)%.o: $(SRCDIR)%.c | $(OBJDIR)
-	@echo -e "CC $<\e[1;31m"
+	@echo -e "CC $<$(COLOR_RED)"
 	+@$(CC) $(DEFS) $(CPPFLAGS) -MMD -MP -MT $@ -MF $(basename $@).d $(BFINGERS_CFLAGS) -c $< -o $@
-	@echo -ne "\e[0m"
+	@echo -ne "$(COLOR_CLEAR)"
 
 libchash: $(LIBCHASH_OBJECTS)
 
 $(OBJDIR)%.o: $(SRCDIR)libchash/%.c | $(OBJDIR)
-	@echo -e "CC $<\e[1;31m"
+	@echo -e "CC $<$(COLOR_RED)"
 	+@$(CC) $(DEFS) $(CPPFLAGS) -MMD -MP -MT $@ -MF $(basename $@).d $(LIBCHASH_CFLAGS) -c $< -o $@
-	@echo -ne "\e[0m"
+	@echo -ne "$(COLOR_CLEAR)"
 
 gar: $(GAR_OBJECTS)
 
 $(OBJDIR)%.o: $(SRCDIR)gar/%.c | $(OBJDIR)
-	@echo -e "CC $<\e[1;31m"
+	@echo -e "CC $<$(COLOR_RED)"
 	+@$(CC) $(DEFS) $(CPPFLAGS) -MMD -MP -MT $@ -MF $(basename $@).d $(GAR_CFLAGS) -c $< -o $@
-	@echo -ne "\e[0m"
+	@echo -ne "$(COLOR_CLEAR)"
 
 platform: $(PLATFORM_OBJECTS)
 
 $(OBJDIR)%.o: $(SRCDIR)platform/%.c | $(OBJDIR)
-	@echo -e "CC $<\e[1;31m"
+	@echo -e "CC $<$(COLOR_RED)"
 	+@$(CC) $(DEFS) $(CPPFLAGS) -MMD -MP -MT $@ -MF $(basename $@).d $(PLATFORM_CFLAGS) -c $< -o $@
-	@echo -ne "\e[0m"
+	@echo -ne "$(COLOR_CLEAR)"
 
 inifile: $(INIFILE_OBJECTS)
 
 $(OBJDIR)%.o: $(SRCDIR)inifile/%.c | $(OBJDIR)
-	@echo -e "CC $<\e[1;31m"
+	@echo -e "CC $<$(COLOR_RED)"
 	+@$(CC) $(DEFS) $(CPPFLAGS) -MMD -MP -MT $@ -MF $(basename $@).d $(INIFILE_CFLAGS) -c $< -o $@
-	@echo -ne "\e[0m"
+	@echo -ne "$(COLOR_CLEAR)"
 
 lua: $(OBJDIR)engine_init_lua.o
 
 $(OBJDIR)data.c: $(SRCDIR)engine_init.lua | $(OBJDIR)
-	@echo -e "DATA $<\e[1;31m"
+	@echo -e "DATA $<$(COLOR_RED)"
 	@$(BIN2C) $< engine_init_lua > $(OBJDIR)data.c
-	@echo -ne "\e[0m"
+	@echo -ne "$(COLOR_CLEAR)"
+
+distclean: clean
+
+dist: distclean
+	tar cjvf bfingers-`date -u +%y%m%d`-src.tbz2 -C .. bfingers/src bfingers/Makefile bfingers/README bfingers/bin2c
 
 clean:
 	-@rm -f $(OBJDIR)data.c $(OBJDIR)*.o $(OBJDIR)*.d

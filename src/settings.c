@@ -18,6 +18,7 @@ int32_t display_width         = 1024  ;
 int32_t display_height        = 576   ;
 int32_t display_depth         = 0     ;
 bool    display_fullscreen    = false ;
+bool    display_border        = true  ;
 bool    display_doublebuffer  = true  ;
 bool    display_waitforvblank = true  ;
 bool    display_printfps      = false ;
@@ -62,6 +63,8 @@ bool settings_callback(char* section, bool newsection, char* name, char* value)
 			}
 			else if (!stricmp(name, "fs"))
 				display_fullscreen = !stricmp(inifile_cleanstr(value), "true");
+			else if (!stricmp(name, "border"))
+				display_border = !stricmp(inifile_cleanstr(value), "true");
 			else if (!stricmp(name, "i"))
 				data_location = strdup(value);
 			else if (!stricmp(name, "fps"))
@@ -89,6 +92,8 @@ bool settings_callback(char* section, bool newsection, char* name, char* value)
 			}
 			else if (!stricmp(name, "fullscreen"))
 				display_fullscreen = !stricmp(inifile_cleanstr(value), "true");
+			else if (!stricmp(name, "border"))
+				display_border = !stricmp(inifile_cleanstr(value), "true");
 			else if (!stricmp(name, "doublebuffer"))
 				display_doublebuffer = !stricmp(inifile_cleanstr(value), "true");
 			else if (!stricmp(name, "waitforvblank"))
