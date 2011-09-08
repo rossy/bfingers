@@ -5,4 +5,4 @@
 
 echo -n "const unsigned char ${NAME}[]={"
 od -vA n -w1 -t u1 "$1"|tr -d ' '|tr \\n ,
-echo "};const unsigned char ${NAME}_size=sizeof(${NAME});"
+echo "};const unsigned long ${NAME}_size=sizeof(${NAME});"

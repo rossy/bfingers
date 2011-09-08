@@ -10,6 +10,6 @@ extern lua_State *script_state;
 
 bool script_init();
 
-bool script_runbuf(void*, size_t);
+bool script_runbuf(const void*, size_t);
 
 #endif

@@ -2,7 +2,7 @@ CC=gcc
 CFLAGS=-Wall -O0 -flto=jobserver -march=i686 -mtune=atom
 LDFLAGS=-Ofast -s -flto=jobserver -march=i686 -mtune=atom -fuse-linker-plugin -fwhole-program
 LIBS=-llua -llzma -lSDL -lSDLmain -lz -lpng -lrt -lGL
-DEFS=-DCOMPILER="\"`$(CC) --version|head -n1`\"" -DUNAME="\"`uname -snrmpo`\""
+DEFS=-DCOMPILER="\"$(shell $(CC) --version|head -n1)\"" -DUNAME="\"$(shell uname -snrmpo)\""
 BIN2C=./bin2c
 
 ifeq ($(MSYSTEM),MINGW32)
@@ -48,50 +48,61 @@ static: all
 -include $(OBJECTS:.o=.d)
 
 $(BINDIR):
-	mkdir -p $(BINDIR)
+	@mkdir -p $(BINDIR)
 
 $(OBJDIR):
-	mkdir -p $(OBJDIR)
+	@mkdir -p $(OBJDIR)
 
-$(BINDIR)$(EXECUTABLE): $(OBJDIR)engine_init_lua.o $(OBJECTS) $(LIBCHASH_OBJECTS) $(GAR_OBJECTS) $(PLATFORM_OBJECTS) $(INIFILE_OBJECTS) | $(BINDIR)
-	+$(CC) $(LDFLAGS) $(LIBS) $(OBJDIR)engine_init_lua.o $(OBJECTS) $(LIBCHASH_OBJECTS) $(GAR_OBJECTS) $(PLATFORM_OBJECTS) $(INIFILE_OBJECTS) -o $@
+$(BINDIR)$(EXECUTABLE): $(OBJDIR)data.c $(OBJECTS) $(LIBCHASH_OBJECTS) $(GAR_OBJECTS) $(PLATFORM_OBJECTS) $(INIFILE_OBJECTS) | $(BINDIR)
+	@echo -e "CCLD $@\e[1;31m"
+	+@$(CC) $(LDFLAGS) $(LIBS) $(OBJDIR)data.c $(OBJECTS) $(LIBCHASH_OBJECTS) $(GAR_OBJECTS) $(PLATFORM_OBJECTS) $(INIFILE_OBJECTS) -o $@
+	@echo -ne "\e[0m"
 
 $(OBJDIR)%.o: $(SRCDIR)%.c | $(OBJDIR)
-	+$(CC) $(DEFS) $(CPPFLAGS) -MMD -MP -MT $@ -MF $(basename $@).d $(BFINGERS_CFLAGS) -c $< -o $@
+	@echo -e "CC $<\e[1;31m"
+	+@$(CC) $(DEFS) $(CPPFLAGS) -MMD -MP -MT $@ -MF $(basename $@).d $(BFINGERS_CFLAGS) -c $< -o $@
+	@echo -ne "\e[0m"
 
 libchash: $(LIBCHASH_OBJECTS)
 
 $(OBJDIR)%.o: $(SRCDIR)libchash/%.c | $(OBJDIR)
-	+$(CC) $(DEFS) $(CPPFLAGS) -MMD -MP -MT $@ -MF $(basename $@).d $(LIBCHASH_CFLAGS) -c $< -o $@
+	@echo -e "CC $<\e[1;31m"
+	+@$(CC) $(DEFS) $(CPPFLAGS) -MMD -MP -MT $@ -MF $(basename $@).d $(LIBCHASH_CFLAGS) -c $< -o $@
+	@echo -ne "\e[0m"
 
 gar: $(GAR_OBJECTS)
 
 $(OBJDIR)%.o: $(SRCDIR)gar/%.c | $(OBJDIR)
-	+$(CC) $(DEFS) $(CPPFLAGS) -MMD -MP -MT $@ -MF $(basename $@).d $(GAR_CFLAGS) -c $< -o $@
+	@echo -e "CC $<\e[1;31m"
+	+@$(CC) $(DEFS) $(CPPFLAGS) -MMD -MP -MT $@ -MF $(basename $@).d $(GAR_CFLAGS) -c $< -o $@
+	@echo -ne "\e[0m"
 
 platform: $(PLATFORM_OBJECTS)
 
 $(OBJDIR)%.o: $(SRCDIR)platform/%.c | $(OBJDIR)
-	+$(CC) $(DEFS) $(CPPFLAGS) -MMD -MP -MT $@ -MF $(basename $@).d $(PLATFORM_CFLAGS) -c $< -o $@
+	@echo -e "CC $<\e[1;31m"
+	+@$(CC) $(DEFS) $(CPPFLAGS) -MMD -MP -MT $@ -MF $(basename $@).d $(PLATFORM_CFLAGS) -c $< -o $@
+	@echo -ne "\e[0m"
 
 inifile: $(INIFILE_OBJECTS)
 
 $(OBJDIR)%.o: $(SRCDIR)inifile/%.c | $(OBJDIR)
-	+$(CC) $(DEFS) $(CPPFLAGS) -MMD -MP -MT $@ -MF $(basename $@).d $(INIFILE_CFLAGS) -c $< -o $@
+	@echo -e "CC $<\e[1;31m"
+	+@$(CC) $(DEFS) $(CPPFLAGS) -MMD -MP -MT $@ -MF $(basename $@).d $(INIFILE_CFLAGS) -c $< -o $@
+	@echo -ne "\e[0m"
 
 lua: $(OBJDIR)engine_init_lua.o
 
-$(OBJDIR)engine_init_lua.o: $(SRCDIR)engine_init.lua | $(OBJDIR)
-	$(BIN2C) $< init_lua | $(CC) -w -x c -c - -o $@
+$(OBJDIR)data.c: $(SRCDIR)engine_init.lua | $(OBJDIR)
+	@echo -e "DATA $<\e[1;31m"
+	@$(BIN2C) $< engine_init_lua > $(OBJDIR)data.c
+	@echo -ne "\e[0m"
 
 clean:
-	-rm -f $(OBJDIR)*.o $(OBJDIR)*.d
-	-rmdir -p $(OBJDIR) 2> /dev/null > /dev/null
-	-rmdir -p $(BINDIR) 2> /dev/null > /dev/null
-
-rebuild:
-	$(MAKE) clean
-	$(MAKE)
+	-@rm -f $(OBJDIR)data.c $(OBJDIR)*.o $(OBJDIR)*.d
+	-@rm -f $(BINDIR)$(EXECUTABLE)
+	-@( rmdir -p $(OBJDIR) || true ) 2> /dev/null > /dev/null
+	-@( rmdir -p $(BINDIR) || true ) 2> /dev/null > /dev/null
 
 cloc:
-	 cloc src --exclude-dir=libchash
+	@cloc src --exclude-dir=libchash

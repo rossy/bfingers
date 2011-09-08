@@ -234,9 +234,9 @@ bool script_init()
 	lua_rawset(script_state, -3);
 	lua_setglobal(script_state, "Object");
 	
-	extern char init_lua[];
-	extern unsigned long init_lua_size;
-	if (!script_runbuf(init_lua, init_lua_size))
+	extern const unsigned char engine_init_lua[];	
+	extern const unsigned long engine_init_lua_size;
+	if (!script_runbuf(engine_init_lua, engine_init_lua_size))
 	{
 		lua_close(script_state);
 		return false;
@@ -245,7 +245,7 @@ bool script_init()
 	return true;
 }
 
-bool script_runbuf(void* buf, size_t size)
+bool script_runbuf(const void* buf, size_t size)
 {
 	if (luaL_loadbuffer(script_state, buf, size, "data"))
 	{
